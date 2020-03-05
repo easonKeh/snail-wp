@@ -8,4 +8,5 @@ snail:
       maxIdle: 8
       testOnIdle: true
     mongodb:
-      url: mongodb://root:seblong2015@127.0.0.1:27017/seblong?maxPoolSize=3000&waitQueueMultiple=500&waitQueueTimeoutMS=50000
+      user:
+        url: mongodb://root:seblong2015@182.254.245.148:27017/seblong?authSource=admin&maxPoolSize=3000&waitQueueMultiple=500&waitQueueTimeoutMS=5000
