@@ -1,13 +1,18 @@
 package com.seblong.wp.services;
 
 import com.seblong.wp.entities.SnailWish;
+import com.seblong.wp.exceptions.ValidationException;
 
 public interface SnailWishService {
+	
+	SnailWish get();
+	
+	SnailWish get(String user);
 
-	SnailWish create(int startDate, int endDate, int startTime, int endTime, String suprisedUrl, String popupUrl,
-			long popupStart, long popupEnd, String bigCouponUrl, String smallCouponUrl);
+	SnailWish create(String startDate, String endDate, String startTime, String endTime, String suprisedUrl, String popupUrl,
+			long popupStart, long popupEnd, String bigCouponUrl, String smallCouponUrl) throws ValidationException;
 
-	SnailWish update(long id, int startDate, int endDate, int startTime, int endTime, String suprisedUrl, String popupUrl,
-			long popupStart, long popupEnd, String bigCouponUrl, String smallCouponUrl);
+	SnailWish update(long id, String startDate, String endDate, String startTime, String endTime, String suprisedUrl, String popupUrl,
+			long popupStart, long popupEnd, String bigCouponUrl, String smallCouponUrl) throws ValidationException;
 
 }
