@@ -103,11 +103,6 @@ public class SnailWishServiceImpl implements SnailWishService {
 	public void lottery() {
 		SnailWish snailWish = get();
 		if( snailWish != null && snailWish.getStatus().equals(WishStatus.WAIT_LOTTERY) ) {
-			long current = System.currentTimeMillis();
-			if ( current - snailWish.getLatestLottery() > 86000000 ) {
-				//80,200,不限
-				
-			}
 		}
 	}
 	
