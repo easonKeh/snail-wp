@@ -2,53 +2,55 @@ server:
   servlet:
     context-path: /snail-wp
 spring:
-  datasource:
-    type: com.zaxxer.hikari.HikariDataSource
-    url: jdbc:mysql://sh-cdb-0rm6u44o.sql.tencentcdb.com:62199/seblong?characterEncoding=UTF-8&rewriteBatchedStatements=true&autoReconnect=true&autoReconnectForPools=true&createDatabaseIfNotExists=true&useSSL=true
-    driver-class-name: com.mysql.jdbc.Driver
-    username: root
-    password: seblong2017
-    hikari:
-      connection-timeout: 10000
-      maximum-pool-size: 20
-      minimum-idle: 10
-      connection-init-sql: select 1
-      connection-test-query: select 1
-      data-source-properties:
-        prepStmtCacheSize: 250
-        prepStmtCacheSqlLimit: 2048
-        cachePrepStmts: true
-        useServerPrepStmts: true
   data:
     jpa:
       repositories:
         enabled: true
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    hikari:
+      connection-init-sql: select 1
+      connection-test-query: select 1
+      connection-timeout: 10000
+      data-source-properties:
+        cachePrepStmts: true
+        prepStmtCacheSize: 250
+        prepStmtCacheSqlLimit: 2048
+        useServerPrepStmts: true
+      maximum-pool-size: 20
+      minimum-idle: 10
+    password: seblong2017
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:mysql://sh-cdb-0rm6u44o.sql.tencentcdb.com:62199/seblong?characterEncoding=UTF-8&rewriteBatchedStatements=true&autoReconnect=true&autoReconnectForPools=true&createDatabaseIfNotExists=true&useSSL=true
+    username: root
   jpa:
-    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     database: MYSQL
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     generate-ddl: true
-    hibernate.ddl-auto: update
+    hibernate:
+      ddl-auto: update
     open-in-view: true
-    show-sql: true
     properties:
       hibernate:
+        cache:
+          region:
+            factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
+          use_second_level_cache: false
         dialect: org.hibernate.dialect.MySQL5InnoDBDialect
-        show_sql: true
-        hbm2ddl.auto: update
         format_sql: false
-        temp.use_jdbc_metadata_defaults: false
-        cache.region.factory_class: org.hibernate.cache.ehcache.SingletonEhCacheRegionFactory
-        jdbc.batch_size: 200
+        generate_statistics: false
+        hbm2ddl:
+          auto: update
+        jdbc:
+          batch_size: 200
+          batch_versioned_data: true
         order_inserts: true
         order_updates: true
-        cache.use_second_level_cache: false
-        jdbc.batch_versioned_data: true
-        generate_statistics: false
-      hibernate_use_sql_comments=false:
-jpa:
-  hibernate:
-    connection:
-      CharSet=utf8mb4:
+        show_sql: true
+        temp:
+          use_jdbc_metadata_defaults: false
+      hibernate_use_sql_comments: false
+    show-sql: true
 snail:
   wp:
     redis:
