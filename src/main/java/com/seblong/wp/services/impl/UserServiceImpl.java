@@ -27,9 +27,6 @@ public class UserServiceImpl implements UserService {
 		try {
 			ObjectId uId = new ObjectId(userId);
 			User user = userRepo.findBriefUserById(uId);
-			if(user == null){
-				return null;
-			}
 			return user;
 		} catch (IllegalArgumentException | NoSuchElementException e) {
 			return null;

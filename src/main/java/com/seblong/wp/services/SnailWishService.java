@@ -14,5 +14,7 @@ public interface SnailWishService {
 
 	SnailWish update(long id, String startDate, String endDate, String startTime, String endTime, String suprisedUrl, String popupUrl,
 			long popupStart, long popupEnd, String bigCouponUrl, String smallCouponUrl) throws ValidationException;
+	
+	void lottery();
 
 }

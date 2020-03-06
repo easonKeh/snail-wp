@@ -78,6 +78,9 @@ public class SnailWish implements Serializable{
 	@Column(name = "END")
 	private long end;
 
+	@Column(name = "LATESTLOTTERY")
+	private long latestLottery;
+	
 	// 倒计时，毫秒数
 	@Transient
 	private long countDown;
