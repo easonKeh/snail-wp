@@ -5,10 +5,12 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import com.seblong.wp.entities.SnailWish;
+import com.seblong.wp.entities.SnailWish.WishStatus;
 import com.seblong.wp.exceptions.ValidationException;
 import com.seblong.wp.repositories.SnailWishRepository;
 import com.seblong.wp.services.SnailWishService;
@@ -96,6 +98,19 @@ public class SnailWishServiceImpl implements SnailWishService {
 		return snailWish;
 	}
 	
+	@Scheduled(cron = "0 55 11 * * ?")
+	@Override
+	public void lottery() {
+		SnailWish snailWish = get();
+		if( snailWish != null && snailWish.getStatus().equals(WishStatus.WAIT_LOTTERY) ) {
+			long current = System.currentTimeMillis();
+			if ( current - snailWish.getLatestLottery() > 86000000 ) {
+				//80,200,不限
+				
+			}
+		}
+	}
+	
 	private void put(SnailWish snailWish) {
 		redisTemplate.boundValueOps(key).set(snailWish);
 	}
@@ -111,4 +126,5 @@ public class SnailWishServiceImpl implements SnailWishService {
 	private void remove() {
 		redisTemplate.delete(key);
 	}
+
 }
