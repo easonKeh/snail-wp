@@ -78,8 +78,11 @@ public class SnailWish implements Serializable{
 	@Column(name = "END")
 	private long end;
 
-	@Column(name = "LATESTLOTTERY")
-	private long latestLottery;
+	@Column(name = "LOTTERYDATE", nullable = false, columnDefinition = "varchar(10)")
+	private String lotteryDate;
+
+	@Column(name = "NUM")
+	private int num;
 	
 	// 倒计时，毫秒数
 	@Transient
@@ -97,12 +100,6 @@ public class SnailWish implements Serializable{
 	@Transient
 	private long current;
 
-	@Transient
-	private String lotteryDate;
-
-	@Transient
-	private int num;
-
 	public SnailWish() {
 	}
 
@@ -118,6 +115,10 @@ public class SnailWish implements Serializable{
 		this.popupEnd = popupEnd;
 		this.bigCouponUrl = bigCouponUrl;
 		this.smallCouponUrl = smallCouponUrl;
+		LocalDate startLocalDate = LocalDate.parse(this.getStartDate(), DateTimeFormatter.BASIC_ISO_DATE);
+		LocalDate lotteryDate = startLocalDate.plusDays(1);
+		this.num = 1;
+		this.lotteryDate = lotteryDate.format(DateTimeFormatter.BASIC_ISO_DATE);
 	}
 	
 	public void calculateStart() {
@@ -147,9 +148,6 @@ public class SnailWish implements Serializable{
 		if (this.current < this.getStart()) {
 			// 还未到第一次许愿时间
 			this.status = WishStatus.NOT_START;
-			LocalDate startDate = LocalDate.parse(this.getStartDate(), DateTimeFormatter.BASIC_ISO_DATE);
-			startDate = startDate.plusDays(1);
-			this.lotteryDate = startDate.format(DateTimeFormatter.BASIC_ISO_DATE);
 		} else if (this.current >= this.getEnd()) {
 			// 超过了最后一次的许愿时间
 			LocalDate endDate = LocalDate.parse(this.getEndDate(), DateTimeFormatter.BASIC_ISO_DATE);
@@ -163,7 +161,6 @@ public class SnailWish implements Serializable{
 			} else {
 				// 未超过最后一次开奖时间
 				this.status = WishStatus.WAIT_LOTTERY;
-				this.lotteryDate = endDate.format(DateTimeFormatter.BASIC_ISO_DATE);
 			}
 
 		} else {
@@ -181,22 +178,15 @@ public class SnailWish implements Serializable{
 			if (this.current < todayLotteryTimestamp) {
 				// 没到开奖时间
 				this.status = WishStatus.WAIT_LOTTERY;
-				this.lotteryDate = todayDate.format(DateTimeFormatter.BASIC_ISO_DATE);
 			} else if (this.current < todayStartTimestamp) {
 				// 没到开始许愿时间
 				this.status = WishStatus.NOT_START;
-				todayDate = todayDate.plusDays(1);
-				this.lotteryDate = todayDate.format(DateTimeFormatter.BASIC_ISO_DATE);
 			} else if (this.current < todayEndTimestamp) {
 				// 许愿还未结束
 				this.status = WishStatus.START;
-				todayDate = todayDate.plusDays(1);
-				this.lotteryDate = todayDate.format(DateTimeFormatter.BASIC_ISO_DATE);
 			} else {
 				// 今日许愿已经结束
 				this.status = WishStatus.WAIT_LOTTERY;
-				todayDate = todayDate.plusDays(1);
-				this.lotteryDate = todayDate.format(DateTimeFormatter.BASIC_ISO_DATE);
 			}
 		}
 	}
@@ -210,10 +200,6 @@ public class SnailWish implements Serializable{
 			// 还未到第一次许愿时间
 			this.status = WishStatus.NOT_START;
 			this.countDown = this.getStart() - this.current;
-			LocalDate startDate = LocalDate.parse(this.getStartDate(), DateTimeFormatter.BASIC_ISO_DATE);
-			startDate = startDate.plusDays(1);
-			this.lotteryDate = startDate.format(DateTimeFormatter.BASIC_ISO_DATE);
-			this.num = 1;
 		} else if (this.current >= this.getEnd()) {
 			// 超过了最后一次的许愿时间
 			LocalDate endDate = LocalDate.parse(this.getEndDate(), DateTimeFormatter.BASIC_ISO_DATE);
@@ -228,14 +214,10 @@ public class SnailWish implements Serializable{
 				// 未超过最后一次开奖时间
 				this.status = WishStatus.WAIT_LOTTERY;
 				this.countDown = lotteryTimestamp - this.current;
-				this.lotteryDate = endDate.format(DateTimeFormatter.BASIC_ISO_DATE);
-				LocalDate startDate = LocalDate.parse(this.getStartDate(), DateTimeFormatter.BASIC_ISO_DATE);
-				this.num = startDate.until(endDate).getDays();
 			}
 
 		} else {
 			// 在活动期间
-			LocalDate startDate = LocalDate.parse(this.getStartDate(), DateTimeFormatter.BASIC_ISO_DATE);
 			LocalDate todayDate = LocalDate.now();
 			LocalTime starTime = LocalTime.parse(this.getStartTime(), DateTimeFormatter.ofPattern("HHmmss"));
 			LocalTime endTime = LocalTime.parse(this.getEndTime(), DateTimeFormatter.ofPattern("HHmmss"));
@@ -250,22 +232,14 @@ public class SnailWish implements Serializable{
 				// 没到开奖时间
 				this.status = WishStatus.WAIT_LOTTERY;
 				this.countDown = todayLotteryTimestamp - this.current;
-				this.lotteryDate = todayDate.format(DateTimeFormatter.BASIC_ISO_DATE);
-				this.num = startDate.until(todayDate).getDays();
 			} else if (this.current < todayStartTimestamp) {
 				// 没到开始许愿时间
 				this.status = WishStatus.NOT_START;
 				this.countDown = todayStartTimestamp - this.current;
-				todayDate = todayDate.plusDays(1);
-				this.lotteryDate = todayDate.format(DateTimeFormatter.BASIC_ISO_DATE);
-				this.num = startDate.until(todayDate).getDays();
 			} else if (this.current < todayEndTimestamp) {
 				// 许愿还未结束
 				this.status = WishStatus.START;
 				this.countDown = todayEndTimestamp - this.current;
-				todayDate = todayDate.plusDays(1);
-				this.lotteryDate = todayDate.format(DateTimeFormatter.BASIC_ISO_DATE);
-				this.num = startDate.until(todayDate).getDays();
 			} else {
 				// 今日许愿已经结束
 				this.status = WishStatus.WAIT_LOTTERY;
@@ -273,22 +247,22 @@ public class SnailWish implements Serializable{
 				LocalDateTime lottertDateTime = LocalDateTime.of(todayDate, lotteryTime);
 				long lotteryTimestamp = lottertDateTime.toInstant(ZoneOffset.of("+8")).toEpochMilli();
 				this.countDown = lotteryTimestamp - this.current;
-				this.lotteryDate = todayDate.format(DateTimeFormatter.BASIC_ISO_DATE);
-				this.num = startDate.until(todayDate).getDays();
 			}
 		}
 	}
 
 	public void joined() {
 		this.joined = true;
-		String lotteryTimeStr = "120000";
-		LocalDate todayDate = LocalDate.now();
-		LocalTime lotteryTime = LocalTime.parse(lotteryTimeStr, DateTimeFormatter.ofPattern("HHmmss"));
-		this.status = WishStatus.WAIT_LOTTERY;
-		todayDate = todayDate.plusDays(1);
-		LocalDateTime lottertDateTime = LocalDateTime.of(todayDate, lotteryTime);
-		long lotteryTimestamp = lottertDateTime.toInstant(ZoneOffset.of("+8")).toEpochMilli();
-		this.countDown = lotteryTimestamp - this.current;
+		if( this.status.equals(WishStatus.START) ) {
+			this.status = WishStatus.WAIT_LOTTERY;
+			String lotteryTimeStr = "120000";
+			LocalDate todayDate = LocalDate.now();
+			LocalTime lotteryTime = LocalTime.parse(lotteryTimeStr, DateTimeFormatter.ofPattern("HHmmss"));
+			todayDate = todayDate.plusDays(1);
+			LocalDateTime lottertDateTime = LocalDateTime.of(todayDate, lotteryTime);
+			long lotteryTimestamp = lottertDateTime.toInstant(ZoneOffset.of("+8")).toEpochMilli();
+			this.countDown = lotteryTimestamp - this.current;
+		}
 	}
 
 
