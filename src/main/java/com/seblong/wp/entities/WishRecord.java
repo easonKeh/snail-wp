@@ -69,6 +69,12 @@ public class WishRecord {
     @ApiModelProperty(value = "awardType", name = "awardType", dataType = "String", example = "用户中奖状态,GOODS:实体奖品, COUPON_BIG:大额优惠券, COUPON_SMALL:小额优惠券")
     @Column(name = "AWARDTYPE")
     private String awardType;
+    
+    /**
+     * 是否允许获得奖品或者大额优惠卷
+     */
+    @Column(name = "ALLOWBIG")
+    private boolean allowBig;
 
     public WishRecord() {
     }
