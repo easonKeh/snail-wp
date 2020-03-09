@@ -9,6 +9,10 @@ public interface SnailWishService {
 	
 	SnailWish get(String user);
 
+	void delete(long id);
+	
+	boolean isAllowBig(SnailWish snailWish, String user);
+	
 	SnailWish create(String startDate, String endDate, String startTime, String endTime, String suprisedUrl, String popupUrl,
 			long popupStart, long popupEnd, String bigCouponUrl, String smallCouponUrl) throws ValidationException;
 
