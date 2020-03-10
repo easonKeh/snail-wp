@@ -51,7 +51,7 @@ public class SnailWishServiceImpl implements SnailWishService {
 			String popupUrl, long popupStart, long popupEnd, String bigCouponUrl, String smallCouponUrl)
 			throws ValidationException {
 		if (get() != null) {
-			throw new ValidationException(400, "snailwish-exist");
+			throw new ValidationException(1411, "snailwish-exist");
 		}
 
 		SnailWish snailWish = new SnailWish(startDate, endDate, startTime, endTime, suprisedUrl, popupUrl, popupStart,
@@ -67,7 +67,7 @@ public class SnailWishServiceImpl implements SnailWishService {
 			String smallCouponUrl) throws ValidationException {
 		Optional<SnailWish> optional = snailWishRepo.findById(id);
 		if (!optional.isPresent()) {
-			throw new ValidationException(404, "snailwish-not-exist");
+			throw new ValidationException(1404, "snailwish-not-exist");
 		}
 		SnailWish snailWish = optional.get();
 		snailWish.setStartDate(startDate);
@@ -126,11 +126,19 @@ public class SnailWishServiceImpl implements SnailWishService {
 	@Override
 	public void delete(long id) {
 		List<SnailWish> snailWishes = snailWishRepo.findAll();
+		SnailWish snailWish = null;
 		if (!CollectionUtils.isEmpty(snailWishes)) {
-			SnailWish snailWish = snailWishes.get(0);
+			snailWish = snailWishes.get(0);
+			if( snailWish.getId() != id ) {
+				snailWish = null;
+			}
+		}
+		if( snailWish != null ) {
 			snailWishRepo.delete(snailWish);
 			removeSnailWish();
 			clearBigUser(snailWish);
+		}else {
+			throw new ValidationException(1404, "snailwish-not-exist");
 		}
 
 	}
