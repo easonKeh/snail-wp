@@ -1,12 +1,16 @@
 package com.seblong.wp.resource;
 
+import io.swagger.annotations.ApiModelProperty;
+
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 @JsonInclude(Include.NON_EMPTY)
 public class StandardRestResource {
 
+	@ApiModelProperty(value = "状态码", name = "status", dataType = "Integer", example = "200")
 	protected int status;
+	@ApiModelProperty(value = "结果说明", name = "message", dataType = "String", example = "OK")
 	protected String message;
 
 	public StandardRestResource( int status, String message ) {

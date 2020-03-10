@@ -13,7 +13,7 @@ spring:
     active:
       - dev
   application:
-    name: coin
+    name: wish
   autoconfigure:
     exclude:
       - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
