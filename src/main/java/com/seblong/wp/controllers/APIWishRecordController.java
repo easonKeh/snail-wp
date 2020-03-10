@@ -3,28 +3,23 @@ package com.seblong.wp.controllers;
 import com.seblong.wp.entities.SnailWish;
 import com.seblong.wp.entities.WishRecord;
 import com.seblong.wp.entities.mongo.User;
-import com.seblong.wp.resource.StandardEntitiesResource;
 import com.seblong.wp.resource.StandardListResource;
 import com.seblong.wp.resource.StandardRestResource;
 import com.seblong.wp.services.SnailWishService;
 import com.seblong.wp.services.UserService;
 import com.seblong.wp.services.WishRecordService;
 import io.swagger.annotations.*;
-import org.apache.http.client.utils.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Api("许愿记录相关接口")
+@Api(tags = "许愿记录相关接口")
 @RestController
 @RequestMapping(value = "/record", produces = {MediaType.APPLICATION_JSON_VALUE})
 public class APIWishRecordController {
@@ -80,17 +75,18 @@ public class APIWishRecordController {
             return rMap;
         }
         WishRecord wishRecord = wishRecordService.wishing(userId, deviceId, snailWish.getLotteryDate());
+        snailWishService.isAllowBig(snailWish, userId);
         rMap.put("status", 200);
         rMap.put("message", "OK");
         return rMap;
     }
 
-    @ApiOperation("获取用户许愿记录")
+    @ApiOperation(value = "获取用户许愿记录")
     @ApiImplicitParams(
             value = {@ApiImplicitParam(name = "user", value = "用户id", dataType = "String", paramType = "query")}
     )
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = WishRecord.class, responseContainer = "许愿记录")
+            @ApiResponse(code = 200, message = "OK", response = WishRecord.class, responseContainer = "List")
     })
     @GetMapping("/list")
     public ResponseEntity<StandardRestResource> list(
