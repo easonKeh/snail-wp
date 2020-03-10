@@ -66,8 +66,7 @@ public class APISnailWishLotteryController {
             }
     )
     @ApiResponses(value = {
-            @ApiResponse(code = 1404, message = "no-more-lottery-record"),
-            @ApiResponse(code = 200, message = "OK")
+            @ApiResponse(code = 1404, message = "no-more-lottery-record")
     })
 	@GetMapping(value = "/list")
 	public ResponseEntity<StandardEntitiesResource<SnailWishLotteryRecordDomain>> list(@RequestParam(value = "type", required = true) AwardType type,

@@ -1,18 +1,27 @@
 package com.seblong.wp.resource;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+
 import java.util.Collections;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
+@ApiModel
 @JsonInclude(Include.NON_EMPTY)
 public class StandardEntitiesResource<T> extends StandardRestResource {
 
+	@ApiModel
 	public class EntitiesResource{
+		@ApiModelProperty(value = "总数", name = "total", dataType = "Long")
 		private long total;
+		@ApiModelProperty(value = "是否有上一页", name = "hasPrevious", dataType = "Boolean")
 		private boolean hasPrevious = false;
+		@ApiModelProperty(value = "是否有下一页", name = "hasNext", dataType = "Boolean")
 		private boolean hasNext = false;
+		@ApiModelProperty(value = "当前页的实体", name = "entities", dataType = "List")
 		private List<T> entities;
 
 		public EntitiesResource( long total, List<T> entities, boolean hasPrevious, boolean hasNext ) {
@@ -55,6 +64,7 @@ public class StandardEntitiesResource<T> extends StandardRestResource {
 		}
 	}
 
+	@ApiModelProperty(value = "查询结果", name = "result")
 	private EntitiesResource result;
 
 	public StandardEntitiesResource( List<T> entities, long total, boolean hasPrevious, boolean hasNext ) {
