@@ -243,8 +243,8 @@ public class SnailWish implements Serializable{
 			} else {
 				// 今日许愿已经结束
 				this.status = WishStatus.WAIT_LOTTERY;
-				todayDate = todayDate.plusDays(1);
-				LocalDateTime lottertDateTime = LocalDateTime.of(todayDate, lotteryTime);
+				LocalDate lotteryLocalDate = LocalDate.parse(lotteryDate, DateTimeFormatter.BASIC_ISO_DATE);
+				LocalDateTime lottertDateTime = LocalDateTime.of(lotteryLocalDate, lotteryTime);
 				long lotteryTimestamp = lottertDateTime.toInstant(ZoneOffset.of("+8")).toEpochMilli();
 				this.countDown = lotteryTimestamp - this.current;
 			}
@@ -256,10 +256,9 @@ public class SnailWish implements Serializable{
 		if( this.status.equals(WishStatus.START) ) {
 			this.status = WishStatus.WAIT_LOTTERY;
 			String lotteryTimeStr = "120000";
-			LocalDate todayDate = LocalDate.now();
 			LocalTime lotteryTime = LocalTime.parse(lotteryTimeStr, DateTimeFormatter.ofPattern("HHmmss"));
-			todayDate = todayDate.plusDays(1);
-			LocalDateTime lottertDateTime = LocalDateTime.of(todayDate, lotteryTime);
+			LocalDate lotteryDate = LocalDate.parse(this.lotteryDate, DateTimeFormatter.BASIC_ISO_DATE);
+			LocalDateTime lottertDateTime = LocalDateTime.of(lotteryDate, lotteryTime);
 			long lotteryTimestamp = lottertDateTime.toInstant(ZoneOffset.of("+8")).toEpochMilli();
 			this.countDown = lotteryTimestamp - this.current;
 		}
