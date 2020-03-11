@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_EMPTY)
 public class StandardEntityResource<T> extends StandardRestResource {
 
-	@ApiModelProperty(value = "查询的结果", name = "result", dataType = "List")
+	@ApiModelProperty(value = "查询的结果", name = "result")
 	private T result;
 
 	public StandardEntityResource( T res ) {
