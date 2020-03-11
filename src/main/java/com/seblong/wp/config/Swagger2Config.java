@@ -18,7 +18,6 @@ import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import com.fasterxml.classmate.TypeResolver;
-import com.seblong.wp.resource.StandardEntityResource;
 
 @Configuration
 // 注解开启 swagger2 功能
@@ -46,8 +45,7 @@ public class Swagger2Config {
 				.paths(PathSelectors.any())
 				.build()
 				.alternateTypeRules(
-						newRule(typeResolver.resolve(ResponseEntity.class,
-								typeResolver.resolve(StandardEntityResource.class, WildcardType.class)),
+						newRule(typeResolver.resolve(ResponseEntity.class, WildcardType.class),
 								typeResolver.resolve(WildcardType.class)));
 	}
 

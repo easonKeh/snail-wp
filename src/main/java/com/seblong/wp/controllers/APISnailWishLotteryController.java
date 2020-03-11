@@ -57,7 +57,7 @@ public class APISnailWishLotteryController {
 				SnailWishLotteryRecordDomain.fromEntity(record)), HttpStatus.OK);
 	}
 
-	@ApiOperation(value = "分页获取某个日志的获奖记录")
+	@ApiOperation(value = "分页获取某个日期的获奖记录")
     @ApiImplicitParams(
             value = {
             		@ApiImplicitParam(name = "type", value = "获奖类型", dataType = "String", paramType = "query", allowableValues = "GOODS, COUPON_BIG, COUPON_SMALL", required = true),
@@ -66,8 +66,7 @@ public class APISnailWishLotteryController {
             }
     )
     @ApiResponses(value = {
-            @ApiResponse(code = 1404, message = "no-more-lottery-record"),
-            @ApiResponse(code = 200, message = "OK", response = StandardEntitiesResource.class)
+            @ApiResponse(code = 1404, message = "no-more-lottery-record")
     })
 	@GetMapping(value = "/list")
 	public ResponseEntity<StandardEntitiesResource<SnailWishLotteryRecordDomain>> list(@RequestParam(value = "type", required = true) AwardType type,
