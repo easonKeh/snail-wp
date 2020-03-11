@@ -1,5 +1,6 @@
 package com.seblong.wp.controllers;
 
+import com.seblong.wp.domains.WishRecordDomain;
 import com.seblong.wp.entities.SnailWish;
 import com.seblong.wp.entities.WishRecord;
 import com.seblong.wp.entities.mongo.User;
@@ -15,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -86,12 +88,16 @@ public class APIWishRecordController {
             value = {@ApiImplicitParam(name = "user", value = "用户id", dataType = "String", paramType = "query")}
     )
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "OK", response = WishRecord.class, responseContainer = "List")
+            @ApiResponse(code = 200, message = "OK", response = WishRecordDomain.class, responseContainer = "List")
     })
     @GetMapping("/list")
     public ResponseEntity<StandardRestResource> list(
             @RequestParam(value = "user") String userId){
         List<WishRecord> wishRecordList = wishRecordService.listByUser(userId);
-        return new ResponseEntity<StandardRestResource>(new StandardListResource<WishRecord>(wishRecordList), HttpStatus.OK);
+        List<WishRecordDomain> domains = new ArrayList<>();
+        wishRecordList.forEach(wishRecord -> {
+            domains.add(WishRecordDomain.fromEntity(wishRecord));
+        });
+        return new ResponseEntity<StandardRestResource>(new StandardListResource<WishRecordDomain>(domains), HttpStatus.OK);
     }
 }

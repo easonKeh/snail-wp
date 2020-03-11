@@ -28,6 +28,7 @@ public class ExpressServiceImpl implements ExpressService {
         expressInfo.setName(name);
         expressInfo.setProvince(province);
         expressInfo.setRegion(region);
+        expressInfo.setUser(user);
         expressInfo = expressRepo.save(expressInfo);
         return expressInfo;
     }
@@ -35,5 +36,10 @@ public class ExpressServiceImpl implements ExpressService {
     @Override
     public List<ExpressInfo> findAll() {
         return expressRepo.findAll();
+    }
+
+    @Override
+    public ExpressInfo findByUser(String user) {
+        return expressRepo.findByUser(user);
     }
 }

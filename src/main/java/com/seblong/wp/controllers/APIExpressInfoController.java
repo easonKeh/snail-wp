@@ -1,14 +1,18 @@
 package com.seblong.wp.controllers;
 
+import com.seblong.wp.domains.ExpressInfoDomain;
 import com.seblong.wp.entities.ExpressInfo;
+import com.seblong.wp.exceptions.ValidationException;
+import com.seblong.wp.resource.StandardEntitiesResource;
+import com.seblong.wp.resource.StandardEntityResource;
+import com.seblong.wp.resource.StandardRestResource;
 import com.seblong.wp.services.ExpressService;
 import io.swagger.annotations.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -51,4 +55,20 @@ public class APIExpressInfoController {
         return rMap;
     }
 
+    @ApiOperation(value = "获取用户收货信息接口")
+    @ApiImplicitParams(
+            value = {@ApiImplicitParam(name = "user", value = "用户id", dataType = "String", paramType = "query")}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "OK", response = ExpressInfoDomain.class)
+    })
+    @GetMapping("/get")
+    public ResponseEntity<StandardRestResource> get(
+            @RequestParam(value = "user") String user){
+        ExpressInfo expressInfo = expressService.findByUser(user);
+        if(expressInfo == null){
+            throw new ValidationException(1404, "express-not-exist");
+        }
+        return new ResponseEntity<StandardRestResource>(new StandardEntityResource<ExpressInfoDomain>(ExpressInfoDomain.fromEntity(expressInfo)), HttpStatus.OK);
+    }
 }
