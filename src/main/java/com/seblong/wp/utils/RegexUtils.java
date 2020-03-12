@@ -110,7 +110,16 @@ public class RegexUtils {
      * @return 验证成功返回true，验证失败返回false
      */ 
     public static boolean checkURL(String url) { 
-        String regex = "(https?://(w{3}\\.)?)?\\w+\\.\\w+(\\.[a-zA-Z]+)*(:\\d{1,5})?(/\\w*)*(\\??(.+=.*)?(&.+=.*)?)?"; 
+    	   String regex = "^((https|http)?://)"  //https、http
+                   + "?(([0-9a-z_!~*‘().&=+$%-]+: )?[0-9a-z_!~*‘().&=+$%-]+@)?" //ftp的user@  
+                  + "(([0-9]{1,3}\\.){3}[0-9]{1,3}" // IP形式的URL- 例如：199.194.52.184  
+                    + "|" // 允许IP和DOMAIN（域名）
+                    + "([0-9a-z_!~*‘()-]+\\.)*" // 域名- www.  
+                    + "([0-9a-z][0-9a-z-]{0,61})?[0-9a-z]\\." // 二级域名  
+                   + "[a-z]{2,6})" // first level domain- .com or .museum  
+                   + "(:[0-9]{1,5})?" // 端口号最大为65535,5位数
+                   + "((/?)|" // a slash isn‘t required if there is no file name  
+                   + "(/[0-9a-z_!~*‘().;?:@&=+$,%#-]+)+/?)$";   
         return Pattern.matches(regex, url); 
     } 
     
