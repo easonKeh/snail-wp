@@ -40,10 +40,8 @@ public class APISnailWishManageController {
 	private SnailWishService snailWishService;
 
 	@ApiOperation(value = "获取许愿池")
-    @ApiResponses(value = {
-            @ApiResponse(code = 1404, message = "snailwish-not-exist"),
-            @ApiResponse(code = 200, message = "OK")
-    })
+	@ApiResponses(value = { @ApiResponse(code = 1404, message = "snailwish-not-exist"),
+			@ApiResponse(code = 200, message = "OK") })
 	@GetMapping(value = "/get")
 	public ResponseEntity<StandardEntityResource<SnailWishDomain>> get() {
 		SnailWish snailWish = snailWishService.get();
@@ -55,33 +53,27 @@ public class APISnailWishManageController {
 	}
 
 	@ApiOperation(value = "创建许愿池", notes = "系统中只能存在一个许愿池")
-    @ApiImplicitParams(
-            value = {
-            		@ApiImplicitParam(name = "startDate", value = "开始日期", dataType = "String", paramType = "form", format = "yyyyMMdd", example = "20200320", required = true),
-            		@ApiImplicitParam(name = "endDate", value = "结束日期", dataType = "String", paramType = "form", format = "yyyyMMdd", example = "20200324", required = true),
-            		@ApiImplicitParam(name = "startTime", value = "许愿开始时间", dataType = "String", paramType = "form", format = "HHmmss", example = "210000", required = true),
-            		@ApiImplicitParam(name = "endTime", value = "许愿结束时间,注意没有240000，若为晚上12点，设置为235959", dataType = "String", paramType = "form", format = "HHmmss", example = "235959", required = true),
-            		@ApiImplicitParam(name = "suprisedUrl", value = "惊喜跳转url", dataType = "String", paramType = "form", required = false),
-            		@ApiImplicitParam(name = "popupUrl", value = "弹窗跳转url", dataType = "String", paramType = "form", required = false),
-            		@ApiImplicitParam(name = "popupStart", value = "弹窗开始毫秒级时间戳", dataType = "Long", paramType = "form", example = "1584806400000", required = true),
-            		@ApiImplicitParam(name = "popupEnd", value = "弹窗开始毫秒级时间戳", dataType = "Long", paramType = "form", example = "1584979200000", required = true),
-            		@ApiImplicitParam(name = "bigCouponUrl", value = "大额优惠卷地址", dataType = "String", paramType = "form", required = false),
-            		@ApiImplicitParam(name = "smallCouponUrl", value = "中额优惠卷地址", dataType = "String", paramType = "form", required = false)
-            		}
-    )
-    @ApiResponses(value = {
-            @ApiResponse(code = 1401, message = "invalid-startDate"),
-            @ApiResponse(code = 1402, message = "invalid-endDate"),
-            @ApiResponse(code = 1403, message = "invalid-startTime"),
-            @ApiResponse(code = 1405, message = "invalid-endTime"),
-            @ApiResponse(code = 1406, message = "invalid-popupEnd"),
-            @ApiResponse(code = 1407, message = "invalid-suprisedUrl"),
-            @ApiResponse(code = 1408, message = "invalid-popupUrl"),
-            @ApiResponse(code = 1409, message = "invalid-smallCouponUrl"),
-            @ApiResponse(code = 1410, message = "invalid-bigCouponUrl"),
-            @ApiResponse(code = 1411, message = "snailwish-exist"),
-            @ApiResponse(code = 200, message = "OK")
-    })
+	@ApiImplicitParams(value = {
+			@ApiImplicitParam(name = "startDate", value = "开始日期", dataType = "String", paramType = "form", format = "yyyyMMdd", example = "20200320", required = true),
+			@ApiImplicitParam(name = "endDate", value = "结束日期", dataType = "String", paramType = "form", format = "yyyyMMdd", example = "20200324", required = true),
+			@ApiImplicitParam(name = "startTime", value = "许愿开始时间", dataType = "String", paramType = "form", format = "HHmmss", example = "210000", required = true),
+			@ApiImplicitParam(name = "endTime", value = "许愿结束时间,注意没有240000，若为晚上12点，设置为235959", dataType = "String", paramType = "form", format = "HHmmss", example = "235959", required = true),
+			@ApiImplicitParam(name = "suprisedUrl", value = "惊喜跳转url", dataType = "String", paramType = "form", required = false),
+			@ApiImplicitParam(name = "popupUrl", value = "弹窗跳转url", dataType = "String", paramType = "form", required = false),
+			@ApiImplicitParam(name = "popupStart", value = "弹窗开始毫秒级时间戳", dataType = "Long", paramType = "form", example = "1584806400000", required = true),
+			@ApiImplicitParam(name = "popupEnd", value = "弹窗开始毫秒级时间戳", dataType = "Long", paramType = "form", example = "1584979200000", required = true),
+			@ApiImplicitParam(name = "bigCouponUrl", value = "大额优惠卷地址", dataType = "String", paramType = "form", required = false),
+			@ApiImplicitParam(name = "smallCouponUrl", value = "中额优惠卷地址", dataType = "String", paramType = "form", required = false) })
+	@ApiResponses(value = { @ApiResponse(code = 1401, message = "invalid-startDate"),
+			@ApiResponse(code = 1402, message = "invalid-endDate"),
+			@ApiResponse(code = 1403, message = "invalid-startTime"),
+			@ApiResponse(code = 1405, message = "invalid-endTime"),
+			@ApiResponse(code = 1406, message = "invalid-popupEnd"),
+			@ApiResponse(code = 1407, message = "invalid-suprisedUrl"),
+			@ApiResponse(code = 1408, message = "invalid-popupUrl"),
+			@ApiResponse(code = 1409, message = "invalid-smallCouponUrl"),
+			@ApiResponse(code = 1410, message = "invalid-bigCouponUrl"),
+			@ApiResponse(code = 1411, message = "snailwish-exist"), @ApiResponse(code = 200, message = "OK") })
 	@PostMapping(value = "/create")
 	public ResponseEntity<StandardEntityResource<SnailWishDomain>> create(
 			@RequestParam(value = "startDate", required = true) String startDate,
@@ -103,63 +95,45 @@ public class APISnailWishManageController {
 	}
 
 	@ApiOperation(value = "更新许愿池")
-    @ApiImplicitParams(
-            value = {
-            		@ApiImplicitParam(name = "unique", value = "许愿池id", dataType = "Long", paramType = "form", required = true, example = "0"),
-            		@ApiImplicitParam(name = "startDate", value = "开始日期", dataType = "String", paramType = "form", format = "yyyyMMdd", example = "20200320", required = true),
-            		@ApiImplicitParam(name = "endDate", value = "结束日期", dataType = "String", paramType = "form", format = "yyyyMMdd", example = "20200324", required = true),
-            		@ApiImplicitParam(name = "startTime", value = "许愿开始时间", dataType = "String", paramType = "form", format = "HHmmss", example = "210000", required = true),
-            		@ApiImplicitParam(name = "endTime", value = "许愿结束时间,注意没有240000，若为晚上12点，设置为235959", dataType = "String", paramType = "form", format = "HHmmss", example = "235959", required = true),
-            		@ApiImplicitParam(name = "suprisedUrl", value = "惊喜跳转url", dataType = "String", paramType = "form", required = false),
-            		@ApiImplicitParam(name = "popupUrl", value = "弹窗跳转url", dataType = "String", paramType = "form", required = false),
-            		@ApiImplicitParam(name = "popupStart", value = "弹窗开始毫秒级时间戳", dataType = "Long", paramType = "form", example = "1584806400000", required = true),
-            		@ApiImplicitParam(name = "popupEnd", value = "弹窗开始毫秒级时间戳", dataType = "Long", paramType = "form", example = "1584979200000", required = true),
-            		@ApiImplicitParam(name = "bigCouponUrl", value = "大额优惠卷地址", dataType = "String", paramType = "form", required = false),
-            		@ApiImplicitParam(name = "smallCouponUrl", value = "中额优惠卷地址", dataType = "String", paramType = "form", required = false)
-            		}
-    )
-    @ApiResponses(value = {
-            @ApiResponse(code = 1401, message = "invalid-startDate"),
-            @ApiResponse(code = 1402, message = "invalid-endDate"),
-            @ApiResponse(code = 1403, message = "invalid-startTime"),
-            @ApiResponse(code = 1404, message = "snailwish-not-exist"),
-            @ApiResponse(code = 1405, message = "invalid-endTime"),
-            @ApiResponse(code = 1406, message = "invalid-popupEnd"),
-            @ApiResponse(code = 1407, message = "invalid-suprisedUrl"),
-            @ApiResponse(code = 1408, message = "invalid-popupUrl"),
-            @ApiResponse(code = 1409, message = "invalid-smallCouponUrl"),
-            @ApiResponse(code = 1410, message = "invalid-bigCouponUrl"),
-            @ApiResponse(code = 1411, message = "snailwish-exist"),
-            @ApiResponse(code = 200, message = "OK")
-    })
+	@ApiImplicitParams(value = {
+			@ApiImplicitParam(name = "unique", value = "许愿池id", dataType = "Long", paramType = "form", required = true, example = "0"),
+			@ApiImplicitParam(name = "suprisedUrl", value = "惊喜跳转url", dataType = "String", paramType = "form", required = false),
+			@ApiImplicitParam(name = "popupUrl", value = "弹窗跳转url", dataType = "String", paramType = "form", required = false),
+			@ApiImplicitParam(name = "popupStart", value = "弹窗开始毫秒级时间戳", dataType = "Long", paramType = "form", example = "1584806400000", required = true),
+			@ApiImplicitParam(name = "popupEnd", value = "弹窗开始毫秒级时间戳", dataType = "Long", paramType = "form", example = "1584979200000", required = true),
+			@ApiImplicitParam(name = "bigCouponUrl", value = "大额优惠卷地址", dataType = "String", paramType = "form", required = false),
+			@ApiImplicitParam(name = "smallCouponUrl", value = "中额优惠卷地址", dataType = "String", paramType = "form", required = false) })
+	@ApiResponses(value = {
+			@ApiResponse(code = 1404, message = "snailwish-not-exist"),
+			@ApiResponse(code = 1406, message = "invalid-popupEnd"),
+			@ApiResponse(code = 1407, message = "invalid-suprisedUrl"),
+			@ApiResponse(code = 1408, message = "invalid-popupUrl"),
+			@ApiResponse(code = 1409, message = "invalid-smallCouponUrl"),
+			@ApiResponse(code = 1410, message = "invalid-bigCouponUrl"),
+			@ApiResponse(code = 1411, message = "snailwish-exist"), @ApiResponse(code = 200, message = "OK") })
 	@PostMapping(value = "/update")
-	public ResponseEntity<StandardEntityResource<SnailWishDomain>> update(@RequestParam(value = "unique", required = true) long id,
-			@RequestParam(value = "startDate", required = true) String startDate,
-			@RequestParam(value = "endDate", required = true) String endDate,
-			@RequestParam(value = "startTime", required = true) String startTime,
-			@RequestParam(value = "endTime", required = true) String endTime,
+	public ResponseEntity<StandardEntityResource<SnailWishDomain>> update(
+			@RequestParam(value = "unique", required = true) long id,
 			@RequestParam(value = "suprisedUrl", required = false, defaultValue = "") String suprisedUrl,
 			@RequestParam(value = "popupUrl", required = false, defaultValue = "") String popupUrl,
 			@RequestParam(value = "popupStart", required = true) long popupStart,
 			@RequestParam(value = "popupEnd", required = true) long popupEnd,
 			@RequestParam(value = "bigCouponUrl", required = false, defaultValue = "") String bigCouponUrl,
 			@RequestParam(value = "smallCouponUrl", required = false, defaultValue = "") String smallCouponUrl) {
-		validate(startDate, endDate, startTime, endTime, suprisedUrl, popupUrl, popupStart, popupEnd, bigCouponUrl,
+		validate(suprisedUrl, popupUrl, popupStart, popupEnd, bigCouponUrl,
 				smallCouponUrl);
-		SnailWish snailWish = snailWishService.update(id, startDate, endDate, startTime, endTime, suprisedUrl, popupUrl,
-				popupStart, popupEnd, bigCouponUrl, smallCouponUrl);
+		SnailWish snailWish = snailWishService.update(id, suprisedUrl, popupUrl, popupStart, popupEnd, bigCouponUrl,
+				smallCouponUrl);
 		return new ResponseEntity<StandardEntityResource<SnailWishDomain>>(
 				new StandardEntityResource<SnailWishDomain>(SnailWishDomain.fromEntity(snailWish)), HttpStatus.OK);
 	}
-	
+
 	@ApiOperation(value = "删除许愿池")
-	@ApiImplicitParam(name = "unique", value = "许愿池id", dataType = "Long", paramType = "form", example = "0",  required = true)
-    @ApiResponses(value = {
-            @ApiResponse(code = 1404, message = "snailwish-not-exist"),
-            @ApiResponse(code = 200, message = "OK")
-    })
+	@ApiImplicitParam(name = "unique", value = "许愿池id", dataType = "Long", paramType = "form", example = "0", required = true)
+	@ApiResponses(value = { @ApiResponse(code = 1404, message = "snailwish-not-exist"),
+			@ApiResponse(code = 200, message = "OK") })
 	@PostMapping(value = "/delete")
-	public ResponseEntity<StandardRestResource> delete(@RequestParam(value = "unique", required = true) long id){
+	public ResponseEntity<StandardRestResource> delete(@RequestParam(value = "unique", required = true) long id) {
 		snailWishService.delete(id);
 		return new ResponseEntity<StandardRestResource>(new StandardRestResource(200, "OK"), HttpStatus.OK);
 	}
@@ -176,7 +150,7 @@ public class APISnailWishManageController {
 
 		LocalDate endLocalDate = null;
 		try {
-			endLocalDate = LocalDate.parse(startDate, DateTimeFormatter.BASIC_ISO_DATE);
+			endLocalDate = LocalDate.parse(endDate, DateTimeFormatter.BASIC_ISO_DATE);
 		} catch (DateTimeParseException e) {
 			throw new ValidationException(1402, "invalid-endDate");
 		}
@@ -209,6 +183,28 @@ public class APISnailWishManageController {
 			throw new ValidationException(1405, "invalid-endTime");
 		}
 
+		if (popupEnd <= popupStart) {
+			throw new ValidationException(1406, "invalid-popupEnd");
+		}
+
+		if (!StringUtils.isEmpty(suprisedUrl) && !RegexUtils.checkURL(suprisedUrl)) {
+			throw new ValidationException(1407, "invalid-suprisedUrl");
+		}
+
+		if (!StringUtils.isEmpty(popupUrl) && !RegexUtils.checkURL(popupUrl)) {
+			throw new ValidationException(1408, "invalid-popupUrl");
+		}
+
+		if (!StringUtils.isEmpty(smallCouponUrl) && !RegexUtils.checkURL(smallCouponUrl)) {
+			throw new ValidationException(1409, "invalid-smallCouponUrl");
+		}
+
+		if (!StringUtils.isEmpty(bigCouponUrl) && !RegexUtils.checkURL(bigCouponUrl)) {
+			throw new ValidationException(1410, "invalid-bigCouponUrl");
+		}
+	}
+	
+	private void validate(String suprisedUrl,String popupUrl, long popupStart, long popupEnd, String bigCouponUrl, String smallCouponUrl) {
 		if (popupEnd <= popupStart) {
 			throw new ValidationException(1406, "invalid-popupEnd");
 		}

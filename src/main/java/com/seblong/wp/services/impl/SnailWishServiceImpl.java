@@ -62,26 +62,19 @@ public class SnailWishServiceImpl implements SnailWishService {
 	}
 
 	@Override
-	public SnailWish update(long id, String startDate, String endDate, String startTime, String endTime,
-			String suprisedUrl, String popupUrl, long popupStart, long popupEnd, String bigCouponUrl,
-			String smallCouponUrl) throws ValidationException {
+	public SnailWish update(long id, String suprisedUrl, String popupUrl, long popupStart, long popupEnd,
+			String bigCouponUrl, String smallCouponUrl) throws ValidationException {
 		Optional<SnailWish> optional = snailWishRepo.findById(id);
 		if (!optional.isPresent()) {
 			throw new ValidationException(1404, "snailwish-not-exist");
 		}
 		SnailWish snailWish = optional.get();
-		snailWish.setStartDate(startDate);
-		snailWish.setEndDate(endDate);
-		snailWish.setStartTime(startTime);
-		snailWish.setEndTime(endTime);
 		snailWish.setSuprisedUrl(suprisedUrl);
 		snailWish.setPopupUrl(popupUrl);
 		snailWish.setPopupStart(popupStart);
 		snailWish.setPopupEnd(popupEnd);
 		snailWish.setBigCouponUrl(bigCouponUrl);
 		snailWish.setSmallCouponUrl(smallCouponUrl);
-		snailWish.calculateStart();
-		snailWish.calculateEnd();
 		removeSnailWish();
 		return snailWishRepo.save(snailWish);
 	}
@@ -129,15 +122,15 @@ public class SnailWishServiceImpl implements SnailWishService {
 		SnailWish snailWish = null;
 		if (!CollectionUtils.isEmpty(snailWishes)) {
 			snailWish = snailWishes.get(0);
-			if( snailWish.getId() != id ) {
+			if (snailWish.getId() != id) {
 				snailWish = null;
 			}
 		}
-		if( snailWish != null ) {
+		if (snailWish != null) {
 			snailWishRepo.delete(snailWish);
 			removeSnailWish();
 			clearBigUser(snailWish);
-		}else {
+		} else {
 			throw new ValidationException(1404, "snailwish-not-exist");
 		}
 
@@ -180,7 +173,7 @@ public class SnailWishServiceImpl implements SnailWishService {
 							notAllowBigPageable = PageRequest.of(++page, size, sort);
 							notAllowBigRecordPage = wishRecordRepo.findByLotteryDateAndAllowBig(nowLocalDateStr, false,
 									notAllowBigPageable);
-						}else {
+						} else {
 							break;
 						}
 					}
@@ -242,7 +235,7 @@ public class SnailWishServiceImpl implements SnailWishService {
 								bigUsers.add(wishRecord.getUser());
 							}
 							List<WishRecord> bigRecords = allowBigRecordPage.getContent();
-							for( int i = 0; i < countBig ; i++) {
+							for (int i = 0; i < countBig; i++) {
 								int index = random.nextInt(wishRecords.size());
 								WishRecord wishRecord = wishRecords.remove(index);
 								wishRecord.setAwardType(AwardType.COUPON_BIG.toString());
@@ -251,10 +244,10 @@ public class SnailWishServiceImpl implements SnailWishService {
 								bigRecords.add(wishRecord);
 								bigUsers.add(wishRecord.getUser());
 							}
-							
+
 							putBigUser(snailWish, bigUsers);
-							
-							for( int i = 0; i < wishRecords.size() ; i++) {
+
+							for (int i = 0; i < wishRecords.size(); i++) {
 								WishRecord wishRecord = wishRecords.get(i);
 								wishRecord.setAwardType(AwardType.COUPON_SMALL.toString());
 								wishRecord.setUpdated(current);
@@ -262,26 +255,26 @@ public class SnailWishServiceImpl implements SnailWishService {
 							}
 							wishRecords.addAll(prizeRecords);
 							wishRecords.addAll(bigRecords);
-							
+
 							snailWishLotteryRecordService.create(wishRecords);
 							wishRecordRepo.saveAll(wishRecords);
 							if (allowBigRecordPage.hasNext()) {
 								allowBigPageable = PageRequest.of(++page, size, sort);
 								allowBigRecordPage = wishRecordRepo.findByLotteryDateAndAllowBig(nowLocalDateStr, true,
 										allowBigPageable);
-							}else {
+							} else {
 								break;
 							}
-							
+
 						}
 					}
 				}
 				LocalDate endLocalDate = LocalDate.parse(snailWish.getEndDate(), DateTimeFormatter.BASIC_ISO_DATE);
 				LocalDate endLotteryLocalDate = endLocalDate.plusDays(1);
-				if( endLotteryLocalDate.compareTo(nowLocalDate) <= 0 ) {
+				if (endLotteryLocalDate.compareTo(nowLocalDate) <= 0) {
 					snailWish.setLotteryDate("");
 					snailWish.setNum(0);
-				}else {
+				} else {
 					nowLocalDate = nowLocalDate.plusDays(1);
 					snailWish.setLotteryDate(nowLocalDate.format(DateTimeFormatter.BASIC_ISO_DATE));
 					snailWish.setNum(snailWish.getNum() + 1);
