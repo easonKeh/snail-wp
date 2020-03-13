@@ -13,6 +13,8 @@ public class WishLotteryJob implements Job {
 
 	private final static Logger LOG = LoggerFactory.getLogger(WishLotteryJob.class);
 
+	public final static String WISH_LOTTERY_TRIGGER = "WISH_LOTTERY_TRIGGER";
+	
 	public final static String WISH_LOTTERY_JOB = "WISH_LOTTERY_JOB";
 
 	@Override

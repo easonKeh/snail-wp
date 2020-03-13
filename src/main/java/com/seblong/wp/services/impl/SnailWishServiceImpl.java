@@ -13,7 +13,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -227,7 +226,8 @@ public class SnailWishServiceImpl implements SnailWishService {
 								countBig = bigRemain;
 								bigRemain = 0;
 							}
-							List<WishRecord> wishRecords = allowBigRecordPage.getContent();
+							List<WishRecord> wishRecords = new ArrayList<WishRecord>(allowBigRecordPage.getContent().size());
+							wishRecords.addAll(allowBigRecordPage.getContent());
 							List<String> bigUsers = new ArrayList<String>();
 							List<WishRecord> prizeRecords = new ArrayList<WishRecord>();
 							Random random = new Random();
@@ -241,7 +241,7 @@ public class SnailWishServiceImpl implements SnailWishService {
 								prizeRecords.add(wishRecord);
 								bigUsers.add(wishRecord.getUser());
 							}
-							List<WishRecord> bigRecords = allowBigRecordPage.getContent();
+							List<WishRecord> bigRecords = new ArrayList<WishRecord>();
 							for (int i = 0; i < countBig; i++) {
 								int index = random.nextInt(wishRecords.size());
 								WishRecord wishRecord = wishRecords.remove(index);
