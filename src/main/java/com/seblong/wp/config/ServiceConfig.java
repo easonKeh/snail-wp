@@ -20,6 +20,10 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContextBuilder;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.SchedulerFactory;
+import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -32,6 +36,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.client.RestTemplate;
 
 import com.seblong.wp.utils.SnowflakeIdWorker;
+import com.seblong.wp.utils.SpringContextUtil;
 
 @Configuration
 @EnableScheduling
@@ -57,6 +62,18 @@ public class ServiceConfig extends BaseServiceConfig{
 		});
 		executor.setWaitForTasksToCompleteOnShutdown(true);
 		return executor;
+	}
+	
+	@Bean
+	public Scheduler scheduler() throws SchedulerException {
+		SchedulerFactory sf = new StdSchedulerFactory();
+		Scheduler scheduler = sf.getScheduler();
+		return scheduler;
+	}
+	
+	@Bean
+	public SpringContextUtil springContextUtil() {
+		return new SpringContextUtil();
 	}
 	
 	@Bean

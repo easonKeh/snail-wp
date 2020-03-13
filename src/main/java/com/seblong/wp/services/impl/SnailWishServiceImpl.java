@@ -1,4 +1,4 @@
-package com.seblong.wp.services.impl;
+ package com.seblong.wp.services.impl;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -29,6 +29,9 @@ import com.seblong.wp.services.SnailWishLotteryRecordService;
 import com.seblong.wp.services.SnailWishService;
 import com.seblong.wp.utils.RedisLock;
 
+import lombok.extern.log4j.Log4j2;
+
+@Log4j2
 @Service
 public class SnailWishServiceImpl implements SnailWishService {
 
@@ -141,15 +144,17 @@ public class SnailWishServiceImpl implements SnailWishService {
 		return !isBigUser(snailWish, user);
 	}
 
-	@Scheduled(cron = "0 55 11 * * ?")
 	@Override
 	public void lottery() {
+		log.info("开始开奖方法。。。  ");
 		String lockKey = "WISH::LOTTERY:LOCK";
 
 		RedisLock redisLock = new RedisLock(redisTemplate, lockKey);
 		if (redisLock.tryLock()) {
+			log.info("获取到锁，进入开奖逻辑。。。 ");
 			SnailWish snailWish = get();
 			if (snailWish != null && snailWish.getStatus().equals(WishStatus.WAIT_LOTTERY)) {
+				log.info("符合开奖的条件，开始。。。  ");
 				LocalDate nowLocalDate = LocalDate.now();
 				String nowLocalDateStr = nowLocalDate.format(DateTimeFormatter.BASIC_ISO_DATE);
 				if (nowLocalDateStr.equals(snailWish.getLotteryDate())) {
@@ -163,6 +168,7 @@ public class SnailWishServiceImpl implements SnailWishService {
 					long current = System.currentTimeMillis();
 					while (notAllowBigRecordPage != null && notAllowBigRecordPage.hasContent()) {
 						for (WishRecord wishRecord : notAllowBigRecordPage) {
+							log.info("Record:  " + wishRecord.getId() + " 获得中额优惠卷");
 							wishRecord.setAwardType(AwardType.COUPON_SMALL.toString());
 							wishRecord.setUpdated(current);
 							wishRecord.setStatus(EntityStatus.DONE.toString());
@@ -228,6 +234,7 @@ public class SnailWishServiceImpl implements SnailWishService {
 							for (int i = 0; i < countPrize; i++) {
 								int index = random.nextInt(wishRecords.size());
 								WishRecord wishRecord = wishRecords.remove(index);
+								log.info("Record:  " + wishRecord.getId() + " 获得实物奖品");
 								wishRecord.setAwardType(AwardType.GOODS.toString());
 								wishRecord.setUpdated(current);
 								wishRecord.setStatus(EntityStatus.DONE.toString());
@@ -238,6 +245,7 @@ public class SnailWishServiceImpl implements SnailWishService {
 							for (int i = 0; i < countBig; i++) {
 								int index = random.nextInt(wishRecords.size());
 								WishRecord wishRecord = wishRecords.remove(index);
+								log.info("Record:  " + wishRecord.getId() + " 获得大额优惠卷");
 								wishRecord.setAwardType(AwardType.COUPON_BIG.toString());
 								wishRecord.setUpdated(current);
 								wishRecord.setStatus(EntityStatus.DONE.toString());
@@ -269,12 +277,15 @@ public class SnailWishServiceImpl implements SnailWishService {
 						}
 					}
 				}
+				log.info("结算逻辑结束");
 				LocalDate endLocalDate = LocalDate.parse(snailWish.getEndDate(), DateTimeFormatter.BASIC_ISO_DATE);
 				LocalDate endLotteryLocalDate = endLocalDate.plusDays(1);
 				if (endLotteryLocalDate.compareTo(nowLocalDate) <= 0) {
+					log.info("最后一天");
 					snailWish.setLotteryDate("");
 					snailWish.setNum(0);
 				} else {
+					log.info("明天继续开奖");
 					nowLocalDate = nowLocalDate.plusDays(1);
 					snailWish.setLotteryDate(nowLocalDate.format(DateTimeFormatter.BASIC_ISO_DATE));
 					snailWish.setNum(snailWish.getNum() + 1);
