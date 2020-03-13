@@ -27,7 +27,7 @@ public class WishRecordServiceImpl implements WishRecordService {
     }
 
     @Override
-    public WishRecord wishing(String userId, String deviceId, String lotteryDate) {
+    public WishRecord wishing(String userId, String deviceId, String lotteryDate, Boolean isAllowBig) {
         WishRecord record = new WishRecord();
         record.setCreated(System.currentTimeMillis());
         record.setDeviceId(deviceId);
@@ -35,6 +35,7 @@ public class WishRecordServiceImpl implements WishRecordService {
         record.setStatus(EntityStatus.ACTIVED.toString());
         record.setUpdated(System.currentTimeMillis());
         record.setUser(userId);
+        record.setAllowBig(isAllowBig);
         record = wishRecordRepo.save(record);
         return record;
     }
