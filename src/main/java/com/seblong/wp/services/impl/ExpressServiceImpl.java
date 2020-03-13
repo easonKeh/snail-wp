@@ -6,6 +6,8 @@ import com.seblong.wp.services.ExpressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class ExpressServiceImpl implements ExpressService {
 
@@ -26,7 +28,18 @@ public class ExpressServiceImpl implements ExpressService {
         expressInfo.setName(name);
         expressInfo.setProvince(province);
         expressInfo.setRegion(region);
+        expressInfo.setUser(user);
         expressInfo = expressRepo.save(expressInfo);
         return expressInfo;
+    }
+
+    @Override
+    public List<ExpressInfo> findAll() {
+        return expressRepo.findAll();
+    }
+
+    @Override
+    public ExpressInfo findByUser(String user) {
+        return expressRepo.findByUser(user);
     }
 }

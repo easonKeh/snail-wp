@@ -1,5 +1,6 @@
 package com.seblong.wp.config;
 
+import com.seblong.wp.interceptors.SignInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -21,8 +22,13 @@ public class WebConfig {
 			@Override
 			public void addInterceptors(InterceptorRegistry registry) {
 				
-//				registry.addInterceptor(signInterceptor()).addPathPatterns("/**");
-				
+				registry.addInterceptor(signInterceptor()).excludePathPatterns("/manage/**");
+			}
+
+			@Bean
+			public SignInterceptor signInterceptor() {
+				SignInterceptor signInterceptor = new SignInterceptor();
+				return signInterceptor;
 			}
 		};
 	}
