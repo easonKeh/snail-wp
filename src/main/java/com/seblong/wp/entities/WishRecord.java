@@ -7,7 +7,7 @@ import javax.persistence.*;
 @Data
 @Entity
 @Table(name = "t_wish_record", indexes = {@Index(columnList = "USER", unique = true),
-        @Index(columnList = "DEVICEID", unique = true), @Index(columnList = "LOTTERYDATE")})
+        @Index(columnList = "DEVICEID", unique = false), @Index(columnList = "LOTTERYDATE")})
 public class WishRecord {
 
     @Id
