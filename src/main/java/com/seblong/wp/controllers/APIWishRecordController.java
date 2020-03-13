@@ -76,8 +76,8 @@ public class APIWishRecordController {
             rMap.put("message", "device-was-joined");
             return rMap;
         }
-        WishRecord wishRecord = wishRecordService.wishing(userId, deviceId, snailWish.getLotteryDate());
-        snailWishService.isAllowBig(snailWish, userId);
+        boolean isAllowBig = snailWishService.isAllowBig(snailWish, userId);
+        WishRecord wishRecord = wishRecordService.wishing(userId, deviceId, snailWish.getLotteryDate(), isAllowBig);
         rMap.put("status", 200);
         rMap.put("message", "OK");
         return rMap;

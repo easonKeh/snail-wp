@@ -9,7 +9,7 @@ public interface WishRecordService {
 
     WishRecord findByDeviceIdAndDate(String deviceId, String lotteryDate);
 
-    WishRecord wishing(String userId, String deviceId, String lotteryDate);
+    WishRecord wishing(String userId, String deviceId, String lotteryDate, Boolean isAllowBig);
 
     List<WishRecord> listByUser(String userId);
 }
