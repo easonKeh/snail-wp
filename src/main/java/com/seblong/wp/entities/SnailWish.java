@@ -144,6 +144,7 @@ public class SnailWish implements Serializable{
 	}
 
 	public void calculateStatus() {
+		this.current = System.currentTimeMillis();
 		String lotteryTimeStr = "120000";
 		if (this.current < this.getStart()) {
 			// 还未到第一次许愿时间
@@ -192,6 +193,7 @@ public class SnailWish implements Serializable{
 	}
 
 	public void calculate() {
+		this.current = System.currentTimeMillis();
 		if (this.current >= this.getPopupStart() && this.current <= this.getPopupEnd()) {
 			this.popup = true;
 		}
