@@ -151,149 +151,155 @@ public class SnailWishServiceImpl implements SnailWishService {
 		RedisLock redisLock = new RedisLock(redisTemplate, lockKey);
 		if (redisLock.tryLock()) {
 			log.info("获取到锁，进入开奖逻辑。。。 ");
-			SnailWish snailWish = get();
-			if (snailWish != null && snailWish.getStatus().equals(WishStatus.WAIT_LOTTERY)) {
-				log.info("符合开奖的条件，开始。。。  ");
-				LocalDate nowLocalDate = LocalDate.now();
-				String nowLocalDateStr = nowLocalDate.format(DateTimeFormatter.BASIC_ISO_DATE);
-				if (nowLocalDateStr.equals(snailWish.getLotteryDate())) {
-					// 80,200
-					// 取出不允许奖品的记录
-					int page = 0, size = 128;
-					Sort sort = Sort.by("id");
-					Pageable notAllowBigPageable = PageRequest.of(page, size, sort);
-					Page<WishRecord> notAllowBigRecordPage = wishRecordRepo
-							.findByLotteryDateAndAllowBig(nowLocalDateStr, false, notAllowBigPageable);
-					long current = System.currentTimeMillis();
-					while (notAllowBigRecordPage != null && notAllowBigRecordPage.hasContent()) {
-						for (WishRecord wishRecord : notAllowBigRecordPage) {
-							log.info("Record:  " + wishRecord.getId() + " 获得中额优惠卷");
-							wishRecord.setAwardType(AwardType.COUPON_SMALL.toString());
-							wishRecord.setUpdated(current);
-							wishRecord.setStatus(EntityStatus.DONE.toString());
-						}
-						snailWishLotteryRecordService.create(notAllowBigRecordPage.getContent());
-						wishRecordRepo.saveAll(notAllowBigRecordPage.getContent());
-						if (notAllowBigRecordPage.hasNext()) {
-							notAllowBigPageable = PageRequest.of(++page, size, sort);
-							notAllowBigRecordPage = wishRecordRepo.findByLotteryDateAndAllowBig(nowLocalDateStr, false,
-									notAllowBigPageable);
-						} else {
-							break;
-						}
-					}
-					// 取出允许奖品的记录
-					int prize = 80, prizeRemain = 80;
-					int big = 200, bigRemain = 200;
-					long allowBigTotal = wishRecordRepo.countByLotteryDateAndAllowBig(nowLocalDateStr, true);
-					if (allowBigTotal > 0) {
-						page = 0;
-						Pageable allowBigPageable = PageRequest.of(page, size, sort);
-						Page<WishRecord> allowBigRecordPage = wishRecordRepo
-								.findByLotteryDateAndAllowBig(nowLocalDateStr, true, allowBigPageable);
-						while (allowBigRecordPage != null && allowBigRecordPage.hasContent()) {
-							int count = allowBigRecordPage.getNumberOfElements();
-							double rate = 0;
-							if (count >= allowBigTotal) {
-								rate = 1;
-							} else {
-								rate = count / allowBigTotal;
-							}
-
-							int countPrize = new Double(Math.ceil(prize * rate)).intValue();
-							if (count > countPrize) {
-								count -= countPrize;
-							} else {
-								countPrize = count;
-								count = 0;
-							}
-							int countBig = new Double(Math.ceil(big * rate)).intValue();
-							if (count > countBig) {
-								count -= countBig;
-							} else {
-								countBig = count;
-								count = 0;
-							}
-							if (prizeRemain > 0 && prizeRemain > countPrize) {
-								prizeRemain -= countPrize;
-							} else {
-								countPrize = prizeRemain;
-								prizeRemain = 0;
-							}
-							if (bigRemain > 0 && bigRemain > countBig) {
-								bigRemain -= countBig;
-							} else {
-								countBig = bigRemain;
-								bigRemain = 0;
-							}
-							List<WishRecord> wishRecords = new ArrayList<WishRecord>(allowBigRecordPage.getContent().size());
-							wishRecords.addAll(allowBigRecordPage.getContent());
-							List<String> bigUsers = new ArrayList<String>();
-							List<WishRecord> prizeRecords = new ArrayList<WishRecord>();
-							Random random = new Random();
-							for (int i = 0; i < countPrize; i++) {
-								int index = random.nextInt(wishRecords.size());
-								WishRecord wishRecord = wishRecords.remove(index);
-								log.info("Record:  " + wishRecord.getId() + " 获得实物奖品");
-								wishRecord.setAwardType(AwardType.GOODS.toString());
-								wishRecord.setUpdated(current);
-								wishRecord.setStatus(EntityStatus.DONE.toString());
-								prizeRecords.add(wishRecord);
-								bigUsers.add(wishRecord.getUser());
-							}
-							List<WishRecord> bigRecords = new ArrayList<WishRecord>();
-							for (int i = 0; i < countBig; i++) {
-								int index = random.nextInt(wishRecords.size());
-								WishRecord wishRecord = wishRecords.remove(index);
-								log.info("Record:  " + wishRecord.getId() + " 获得大额优惠卷");
-								wishRecord.setAwardType(AwardType.COUPON_BIG.toString());
-								wishRecord.setUpdated(current);
-								wishRecord.setStatus(EntityStatus.DONE.toString());
-								bigRecords.add(wishRecord);
-								bigUsers.add(wishRecord.getUser());
-							}
-
-							putBigUser(snailWish, bigUsers);
-
-							for (int i = 0; i < wishRecords.size(); i++) {
-								WishRecord wishRecord = wishRecords.get(i);
+			try {
+				SnailWish snailWish = get();
+				if (snailWish != null && snailWish.getStatus().equals(WishStatus.WAIT_LOTTERY)) {
+					log.info("符合开奖的条件，开始。。。  ");
+					LocalDate nowLocalDate = LocalDate.now();
+					String nowLocalDateStr = nowLocalDate.format(DateTimeFormatter.BASIC_ISO_DATE);
+					if (nowLocalDateStr.equals(snailWish.getLotteryDate())) {
+						// 80,200
+						// 取出不允许奖品的记录
+						int page = 0, size = 128;
+						Sort sort = Sort.by("id");
+						Pageable notAllowBigPageable = PageRequest.of(page, size, sort);
+						Page<WishRecord> notAllowBigRecordPage = wishRecordRepo
+								.findByLotteryDateAndAllowBig(nowLocalDateStr, false, notAllowBigPageable);
+						long current = System.currentTimeMillis();
+						while (notAllowBigRecordPage != null && notAllowBigRecordPage.hasContent()) {
+							for (WishRecord wishRecord : notAllowBigRecordPage) {
+								log.info("Record:  " + wishRecord.getId() + " 获得中额优惠卷");
 								wishRecord.setAwardType(AwardType.COUPON_SMALL.toString());
 								wishRecord.setUpdated(current);
 								wishRecord.setStatus(EntityStatus.DONE.toString());
 							}
-							wishRecords.addAll(prizeRecords);
-							wishRecords.addAll(bigRecords);
-
-							snailWishLotteryRecordService.create(wishRecords);
-							wishRecordRepo.saveAll(wishRecords);
-							if (allowBigRecordPage.hasNext()) {
-								allowBigPageable = PageRequest.of(++page, size, sort);
-								allowBigRecordPage = wishRecordRepo.findByLotteryDateAndAllowBig(nowLocalDateStr, true,
-										allowBigPageable);
+							snailWishLotteryRecordService.create(notAllowBigRecordPage.getContent());
+							wishRecordRepo.saveAll(notAllowBigRecordPage.getContent());
+							if (notAllowBigRecordPage.hasNext()) {
+								notAllowBigPageable = PageRequest.of(++page, size, sort);
+								notAllowBigRecordPage = wishRecordRepo.findByLotteryDateAndAllowBig(nowLocalDateStr, false,
+										notAllowBigPageable);
 							} else {
 								break;
 							}
+						}
+						// 取出允许奖品的记录
+						int prize = 80, prizeRemain = 80;
+						int big = 200, bigRemain = 200;
+						long allowBigTotal = wishRecordRepo.countByLotteryDateAndAllowBig(nowLocalDateStr, true);
+						if (allowBigTotal > 0) {
+							page = 0;
+							Pageable allowBigPageable = PageRequest.of(page, size, sort);
+							Page<WishRecord> allowBigRecordPage = wishRecordRepo
+									.findByLotteryDateAndAllowBig(nowLocalDateStr, true, allowBigPageable);
+							while (allowBigRecordPage != null && allowBigRecordPage.hasContent()) {
+								int count = allowBigRecordPage.getNumberOfElements();
+								double rate = 0;
+								if (count >= allowBigTotal) {
+									rate = 1;
+								} else {
+									rate = count / allowBigTotal;
+								}
 
+								int countPrize = new Double(Math.ceil(prize * rate)).intValue();
+								if (count > countPrize) {
+									count -= countPrize;
+								} else {
+									countPrize = count;
+									count = 0;
+								}
+								int countBig = new Double(Math.ceil(big * rate)).intValue();
+								if (count > countBig) {
+									count -= countBig;
+								} else {
+									countBig = count;
+									count = 0;
+								}
+								if (prizeRemain > 0 && prizeRemain > countPrize) {
+									prizeRemain -= countPrize;
+								} else {
+									countPrize = prizeRemain;
+									prizeRemain = 0;
+								}
+								if (bigRemain > 0 && bigRemain > countBig) {
+									bigRemain -= countBig;
+								} else {
+									countBig = bigRemain;
+									bigRemain = 0;
+								}
+								List<WishRecord> wishRecords = new ArrayList<WishRecord>(allowBigRecordPage.getContent().size());
+								wishRecords.addAll(allowBigRecordPage.getContent());
+								List<String> bigUsers = new ArrayList<String>();
+								List<WishRecord> prizeRecords = new ArrayList<WishRecord>();
+								Random random = new Random();
+								for (int i = 0; i < countPrize; i++) {
+									int index = random.nextInt(wishRecords.size());
+									WishRecord wishRecord = wishRecords.remove(index);
+									log.info("Record:  " + wishRecord.getId() + " 获得实物奖品");
+									wishRecord.setAwardType(AwardType.GOODS.toString());
+									wishRecord.setUpdated(current);
+									wishRecord.setStatus(EntityStatus.DONE.toString());
+									prizeRecords.add(wishRecord);
+									bigUsers.add(wishRecord.getUser());
+								}
+								List<WishRecord> bigRecords = new ArrayList<WishRecord>();
+								for (int i = 0; i < countBig; i++) {
+									int index = random.nextInt(wishRecords.size());
+									WishRecord wishRecord = wishRecords.remove(index);
+									log.info("Record:  " + wishRecord.getId() + " 获得大额优惠卷");
+									wishRecord.setAwardType(AwardType.COUPON_BIG.toString());
+									wishRecord.setUpdated(current);
+									wishRecord.setStatus(EntityStatus.DONE.toString());
+									bigRecords.add(wishRecord);
+									bigUsers.add(wishRecord.getUser());
+								}
+
+								putBigUser(snailWish, bigUsers);
+
+								for (int i = 0; i < wishRecords.size(); i++) {
+									WishRecord wishRecord = wishRecords.get(i);
+									wishRecord.setAwardType(AwardType.COUPON_SMALL.toString());
+									wishRecord.setUpdated(current);
+									wishRecord.setStatus(EntityStatus.DONE.toString());
+								}
+								wishRecords.addAll(prizeRecords);
+								wishRecords.addAll(bigRecords);
+
+								snailWishLotteryRecordService.create(wishRecords);
+								wishRecordRepo.saveAll(wishRecords);
+								if (allowBigRecordPage.hasNext()) {
+									allowBigPageable = PageRequest.of(++page, size, sort);
+									allowBigRecordPage = wishRecordRepo.findByLotteryDateAndAllowBig(nowLocalDateStr, true,
+											allowBigPageable);
+								} else {
+									break;
+								}
+
+							}
 						}
 					}
+					log.info("结算逻辑结束");
+					LocalDate endLocalDate = LocalDate.parse(snailWish.getEndDate(), DateTimeFormatter.BASIC_ISO_DATE);
+					LocalDate endLotteryLocalDate = endLocalDate.plusDays(1);
+					if (endLotteryLocalDate.compareTo(nowLocalDate) <= 0) {
+						log.info("最后一天");
+						snailWish.setLotteryDate("");
+						snailWish.setNum(0);
+					} else {
+						log.info("明天继续开奖");
+						nowLocalDate = nowLocalDate.plusDays(1);
+						snailWish.setLotteryDate(nowLocalDate.format(DateTimeFormatter.BASIC_ISO_DATE));
+						snailWish.setNum(snailWish.getNum() + 1);
+					}
+					snailWishRepo.save(snailWish);
 				}
-				log.info("结算逻辑结束");
-				LocalDate endLocalDate = LocalDate.parse(snailWish.getEndDate(), DateTimeFormatter.BASIC_ISO_DATE);
-				LocalDate endLotteryLocalDate = endLocalDate.plusDays(1);
-				if (endLotteryLocalDate.compareTo(nowLocalDate) <= 0) {
-					log.info("最后一天");
-					snailWish.setLotteryDate("");
-					snailWish.setNum(0);
-				} else {
-					log.info("明天继续开奖");
-					nowLocalDate = nowLocalDate.plusDays(1);
-					snailWish.setLotteryDate(nowLocalDate.format(DateTimeFormatter.BASIC_ISO_DATE));
-					snailWish.setNum(snailWish.getNum() + 1);
-				}
-				snailWishRepo.save(snailWish);
+				
+			}catch (Exception e) {
+				log.error("开奖出现异常。。。。。。。。。。。。。。。");
+				e.printStackTrace();
+			}finally {
+				redisLock.unlock();
 			}
-
-			redisLock.unlock();
 		}
 
 	}
