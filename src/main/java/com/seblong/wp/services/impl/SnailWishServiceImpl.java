@@ -60,6 +60,10 @@ public class SnailWishServiceImpl implements SnailWishService {
 				popupEnd, bigCouponUrl, smallCouponUrl);
 		snailWish.calculateStart();
 		snailWish.calculateEnd();
+		LocalDate startLocalDate = LocalDate.parse(startDate, DateTimeFormatter.BASIC_ISO_DATE);
+		LocalDate lotteryDate = startLocalDate.plusDays(1);
+		snailWish.setNum(1);
+		snailWish.setLotteryDate(lotteryDate.format(DateTimeFormatter.BASIC_ISO_DATE));
 		return snailWishRepo.save(snailWish);
 	}
 
@@ -291,6 +295,8 @@ public class SnailWishServiceImpl implements SnailWishService {
 						snailWish.setLotteryDate(nowLocalDate.format(DateTimeFormatter.BASIC_ISO_DATE));
 						snailWish.setNum(snailWish.getNum() + 1);
 					}
+					removeSnailWish();
+					putSnailWish(snailWish);
 					snailWishRepo.save(snailWish);
 				}
 				
