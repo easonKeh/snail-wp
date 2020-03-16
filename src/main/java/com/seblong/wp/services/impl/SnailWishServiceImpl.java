@@ -1,6 +1,7 @@
  package com.seblong.wp.services.impl;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -113,6 +114,19 @@ public class SnailWishServiceImpl implements SnailWishService {
 		}
 		if (snailWish != null) {
 			snailWish.calculate();
+			if(snailWish.getStatus().equals(SnailWish.WishStatus.WAIT_LOTTERY)) {
+				LocalTime nowTime = LocalTime.now();
+				LocalTime startLotteryTime = LocalTime.parse("115500", DateTimeFormatter.ofPattern("HHmmss"));
+				LocalTime lotteryTime = LocalTime.parse("120000", DateTimeFormatter.ofPattern("HHmmss"));
+				if( nowTime.compareTo(startLotteryTime) >=0 && nowTime.compareTo(lotteryTime) <=0) {
+					LocalDate todayDate = LocalDate.now();
+					LocalDate lotteryDate = LocalDate.parse(snailWish.getLotteryDate(), DateTimeFormatter.BASIC_ISO_DATE);
+					if( todayDate.compareTo(lotteryDate) < 0 ) {
+						snailWish.setLotteryDate( todayDate.format(DateTimeFormatter.BASIC_ISO_DATE));
+						snailWish.setNum(snailWish.getNum() - 1);
+					}
+				}
+			}
 			// 判断用户是否已经参加
 			if (wishRecordRepo.countByUserAndLotteryDate(user, snailWish.getLotteryDate()) > 0) {
 				// 若已经参加则调用snailWish.joined();
