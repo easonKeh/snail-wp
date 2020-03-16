@@ -115,10 +115,6 @@ public class SnailWish implements Serializable{
 		this.popupEnd = popupEnd;
 		this.bigCouponUrl = bigCouponUrl;
 		this.smallCouponUrl = smallCouponUrl;
-		LocalDate startLocalDate = LocalDate.parse(this.getStartDate(), DateTimeFormatter.BASIC_ISO_DATE);
-		LocalDate lotteryDate = startLocalDate.plusDays(1);
-		this.num = 1;
-		this.lotteryDate = lotteryDate.format(DateTimeFormatter.BASIC_ISO_DATE);
 	}
 	
 	public void calculateStart() {
