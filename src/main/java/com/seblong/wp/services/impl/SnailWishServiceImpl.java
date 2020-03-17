@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Random;
 
+import lombok.extern.log4j.Log4j2;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -28,8 +30,6 @@ import com.seblong.wp.repositories.WishRecordRepository;
 import com.seblong.wp.services.SnailWishLotteryRecordService;
 import com.seblong.wp.services.SnailWishService;
 import com.seblong.wp.utils.RedisLock;
-
-import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @Service
@@ -311,8 +311,6 @@ public class SnailWishServiceImpl implements SnailWishService {
 					LocalDate endLotteryLocalDate = endLocalDate.plusDays(1);
 					if (endLotteryLocalDate.compareTo(nowLocalDate) <= 0) {
 						log.info("最后一天");
-						snailWish.setLotteryDate("");
-						snailWish.setNum(0);
 					} else {
 						log.info("明天继续开奖");
 						nowLocalDate = nowLocalDate.plusDays(1);
