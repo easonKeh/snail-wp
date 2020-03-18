@@ -1,4 +1,4 @@
- package com.seblong.wp.services.impl;
+package com.seblong.wp.services.impl;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
+
+import lombok.extern.log4j.Log4j2;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -28,8 +30,6 @@ import com.seblong.wp.repositories.WishRecordRepository;
 import com.seblong.wp.services.SnailWishLotteryRecordService;
 import com.seblong.wp.services.SnailWishService;
 import com.seblong.wp.utils.RedisLock;
-
-import lombok.extern.log4j.Log4j2;
 
 @Log4j2
 @Service
@@ -114,15 +114,16 @@ public class SnailWishServiceImpl implements SnailWishService {
 		}
 		if (snailWish != null) {
 			snailWish.calculate();
-			if(snailWish.getStatus().equals(SnailWish.WishStatus.WAIT_LOTTERY)) {
+			if (snailWish.getStatus().equals(SnailWish.WishStatus.WAIT_LOTTERY)) {
 				LocalTime nowTime = LocalTime.now();
 				LocalTime startLotteryTime = LocalTime.parse("115500", DateTimeFormatter.ofPattern("HHmmss"));
 				LocalTime lotteryTime = LocalTime.parse("120000", DateTimeFormatter.ofPattern("HHmmss"));
-				if( nowTime.compareTo(startLotteryTime) >=0 && nowTime.compareTo(lotteryTime) <=0) {
+				if (nowTime.compareTo(startLotteryTime) >= 0 && nowTime.compareTo(lotteryTime) <= 0) {
 					LocalDate todayDate = LocalDate.now();
-					LocalDate lotteryDate = LocalDate.parse(snailWish.getLotteryDate(), DateTimeFormatter.BASIC_ISO_DATE);
-					if( todayDate.compareTo(lotteryDate) < 0 ) {
-						snailWish.setLotteryDate( todayDate.format(DateTimeFormatter.BASIC_ISO_DATE));
+					LocalDate lotteryDate = LocalDate.parse(snailWish.getLotteryDate(),
+							DateTimeFormatter.BASIC_ISO_DATE);
+					if (todayDate.compareTo(lotteryDate) < 0) {
+						snailWish.setLotteryDate(todayDate.format(DateTimeFormatter.BASIC_ISO_DATE));
 						snailWish.setNum(snailWish.getNum() - 1);
 					}
 				}
@@ -181,8 +182,8 @@ public class SnailWishServiceImpl implements SnailWishService {
 						int page = 0, size = 128;
 						Sort sort = Sort.by("id");
 						Pageable notAllowBigPageable = PageRequest.of(page, size, sort);
-						Page<WishRecord> notAllowBigRecordPage = wishRecordRepo
-								.findByLotteryDateAndAllowBig(nowLocalDateStr, false, notAllowBigPageable);
+						Page<WishRecord> notAllowBigRecordPage = wishRecordRepo.findByLotteryDateAndAllowBig(
+								nowLocalDateStr, false, notAllowBigPageable);
 						long current = System.currentTimeMillis();
 						while (notAllowBigRecordPage != null && notAllowBigRecordPage.hasContent()) {
 							for (WishRecord wishRecord : notAllowBigRecordPage) {
@@ -195,8 +196,8 @@ public class SnailWishServiceImpl implements SnailWishService {
 							wishRecordRepo.saveAll(notAllowBigRecordPage.getContent());
 							if (notAllowBigRecordPage.hasNext()) {
 								notAllowBigPageable = PageRequest.of(++page, size, sort);
-								notAllowBigRecordPage = wishRecordRepo.findByLotteryDateAndAllowBig(nowLocalDateStr, false,
-										notAllowBigPageable);
+								notAllowBigRecordPage = wishRecordRepo.findByLotteryDateAndAllowBig(nowLocalDateStr,
+										false, notAllowBigPageable);
 							} else {
 								break;
 							}
@@ -206,19 +207,22 @@ public class SnailWishServiceImpl implements SnailWishService {
 						int big = 200, bigRemain = 200;
 						long allowBigTotal = wishRecordRepo.countByLotteryDateAndAllowBig(nowLocalDateStr, true);
 						if (allowBigTotal > 0) {
+							double total = (double) allowBigTotal;
+							log.info("allowBigTotal : " + allowBigTotal);
 							page = 0;
 							Pageable allowBigPageable = PageRequest.of(page, size, sort);
-							Page<WishRecord> allowBigRecordPage = wishRecordRepo
-									.findByLotteryDateAndAllowBig(nowLocalDateStr, true, allowBigPageable);
+							Page<WishRecord> allowBigRecordPage = wishRecordRepo.findByLotteryDateAndAllowBig(
+									nowLocalDateStr, true, allowBigPageable);
 							while (allowBigRecordPage != null && allowBigRecordPage.hasContent()) {
 								int count = allowBigRecordPage.getNumberOfElements();
 								double rate = 0;
 								if (count >= allowBigTotal) {
 									rate = 1;
 								} else {
-									rate = count / allowBigTotal;
+									rate = count / total;
 								}
-
+								log.info(" count :  " + count);
+								log.info("Rate : " + rate);
 								int countPrize = new Double(Math.ceil(prize * rate)).intValue();
 								if (count > countPrize) {
 									count -= countPrize;
@@ -226,6 +230,7 @@ public class SnailWishServiceImpl implements SnailWishService {
 									countPrize = count;
 									count = 0;
 								}
+								log.info("countPrize1 : " + countPrize);
 								int countBig = new Double(Math.ceil(big * rate)).intValue();
 								if (count > countBig) {
 									count -= countBig;
@@ -233,19 +238,23 @@ public class SnailWishServiceImpl implements SnailWishService {
 									countBig = count;
 									count = 0;
 								}
+								log.info("countBig1 : " + countBig);
 								if (prizeRemain > 0 && prizeRemain > countPrize) {
 									prizeRemain -= countPrize;
 								} else {
 									countPrize = prizeRemain;
 									prizeRemain = 0;
 								}
+								log.info("countPrize2 : " + countPrize);
 								if (bigRemain > 0 && bigRemain > countBig) {
 									bigRemain -= countBig;
 								} else {
 									countBig = bigRemain;
 									bigRemain = 0;
 								}
-								List<WishRecord> wishRecords = new ArrayList<WishRecord>(allowBigRecordPage.getContent().size());
+								log.info("countBig2 : " + countBig);
+								List<WishRecord> wishRecords = new ArrayList<WishRecord>(allowBigRecordPage
+										.getContent().size());
 								wishRecords.addAll(allowBigRecordPage.getContent());
 								List<String> bigUsers = new ArrayList<String>();
 								List<WishRecord> prizeRecords = new ArrayList<WishRecord>();
@@ -271,11 +280,12 @@ public class SnailWishServiceImpl implements SnailWishService {
 									bigRecords.add(wishRecord);
 									bigUsers.add(wishRecord.getUser());
 								}
-
-								putBigUser(snailWish, bigUsers);
+								if (!CollectionUtils.isEmpty(bigUsers))
+									putBigUser(snailWish, bigUsers);
 
 								for (int i = 0; i < wishRecords.size(); i++) {
 									WishRecord wishRecord = wishRecords.get(i);
+									log.info("Record:  " + wishRecord.getId() + " 获得小额优惠卷");
 									wishRecord.setAwardType(AwardType.COUPON_SMALL.toString());
 									wishRecord.setUpdated(current);
 									wishRecord.setStatus(EntityStatus.DONE.toString());
@@ -287,8 +297,8 @@ public class SnailWishServiceImpl implements SnailWishService {
 								wishRecordRepo.saveAll(wishRecords);
 								if (allowBigRecordPage.hasNext()) {
 									allowBigPageable = PageRequest.of(++page, size, sort);
-									allowBigRecordPage = wishRecordRepo.findByLotteryDateAndAllowBig(nowLocalDateStr, true,
-											allowBigPageable);
+									allowBigRecordPage = wishRecordRepo.findByLotteryDateAndAllowBig(nowLocalDateStr,
+											true, allowBigPageable);
 								} else {
 									break;
 								}
@@ -301,8 +311,6 @@ public class SnailWishServiceImpl implements SnailWishService {
 					LocalDate endLotteryLocalDate = endLocalDate.plusDays(1);
 					if (endLotteryLocalDate.compareTo(nowLocalDate) <= 0) {
 						log.info("最后一天");
-						snailWish.setLotteryDate("");
-						snailWish.setNum(0);
 					} else {
 						log.info("明天继续开奖");
 						nowLocalDate = nowLocalDate.plusDays(1);
@@ -313,11 +321,11 @@ public class SnailWishServiceImpl implements SnailWishService {
 					putSnailWish(snailWish);
 					snailWishRepo.save(snailWish);
 				}
-				
-			}catch (Exception e) {
+
+			} catch (Exception e) {
 				log.error("开奖出现异常。。。。。。。。。。。。。。。");
 				e.printStackTrace();
-			}finally {
+			} finally {
 				redisLock.unlock();
 			}
 		}
@@ -341,8 +349,10 @@ public class SnailWishServiceImpl implements SnailWishService {
 	}
 
 	private void putBigUser(SnailWish snailWish, List<String> users) {
-		String key = "SNAIL::WISH::BIG::" + snailWish.getId();
-		redisTemplate.boundSetOps(key).add(users.toArray());
+		if (!CollectionUtils.isEmpty(users)) {
+			String key = "SNAIL::WISH::BIG::" + snailWish.getId();
+			redisTemplate.boundSetOps(key).add(users.toArray());
+		}
 	}
 
 	private boolean isBigUser(SnailWish snailWish, String user) {
