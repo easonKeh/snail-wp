@@ -9,7 +9,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfig {
-	
+
+	@Bean
+	public SignInterceptor signInterceptor() {
+		SignInterceptor signInterceptor = new SignInterceptor();
+		return signInterceptor;
+	}
 
 	@Bean
 	public WebMvcConfigurer webMvcConfigurer() {
@@ -21,14 +26,7 @@ public class WebConfig {
 
 			@Override
 			public void addInterceptors(InterceptorRegistry registry) {
-				
 				registry.addInterceptor(signInterceptor()).excludePathPatterns("/manage/**");
-			}
-
-			@Bean
-			public SignInterceptor signInterceptor() {
-				SignInterceptor signInterceptor = new SignInterceptor();
-				return signInterceptor;
 			}
 		};
 	}

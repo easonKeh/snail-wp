@@ -58,5 +58,9 @@ snail:
     mongodb:
       user:
         url: mongodb://root:seblong2015@182.254.245.148:27017/seblong?authSource=admin&maxPoolSize=3000&waitQueueMultiple=500&waitQueueTimeoutMS=5000
+sign:
+  key: 80C2CD8227CBBE096697A14A16783C99
+  check:
+    coerce: true
 swagger:
   enabled: true
